@@ -42,6 +42,8 @@ Using the USRP2_WBX_Tun_TapNode:
     * 192.168.0.2 is the IP of the UFTP server
     * test.txt is the name of the file you want to upload
     * -r 2 creates a longer timeout to give margin for RX/TX switching
+  * ./uftpd -I tun0
+    * You must specify interface on server side or it fails
 * You should be able to ping between devices as well as run UFTP without issues using this configuration.
 
 ### Interface

@@ -30,6 +30,7 @@ Located in the GRC directory.
 Using the USRP2_WBX_Tun_TapNode:
 * gnuradio-companion must be run as sudo for the TUNTAP device to work
 * Remeber to setup AX.25 addressing and RX address filtering.
+* UFTP requires libssl-dev to compile
 * To get both ends to hear eachother some small Manual Frequency Correction may be required.
 * The following network configurations depend on your IP.
   * sudo ifconfig tun0 192.168.200.1

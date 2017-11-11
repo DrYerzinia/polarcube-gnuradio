@@ -35,8 +35,10 @@ Using the USRP2_WBX_Tun_TapNode:
     * 192.168.200.1 is the IP your device will have
   * sudo ip route add 192.168.200.0/24 dev tun0
     * 192.168.200.0/24 is the IP block you want to assign for the tunnel device network
-  * sudo ip link set dev tun0 mtu 255
+  * sudo ip link set dev tun0 mtu 256
+    * AX.25 Link layer can't handle packet sizes over 256
   * ./uftp -I tun0 -H 192.168.0.2 -M 192.168.0.2 -r 2 test.txt
+    * Obtain from https://sourceforge.net/projects/uftp-multicast/files/latest/download
     * 192.168.0.2 is the IP of the UFTP server
     * test.txt is the name of the file you want to upload
     * -r 2 creates a longer timeout to give margin for RX/TX switching

@@ -46,6 +46,7 @@ Using the USRP2_WBX_Tun_TapNode:
     * -r 2 creates a longer timeout to give margin for RX/TX switching
   * ./uftpd -I tun0
     * You must specify interface on server side or it fails
+    * by default UFTP stores files in /tmp if you dont give it a remote directory
 * You should be able to ping between devices as well as run UFTP without issues using this configuration.
 
 ### Interface

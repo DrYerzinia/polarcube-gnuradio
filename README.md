@@ -2,15 +2,15 @@
 
 ### Installation
 
-All important blocks needed for flowgraphs are in blocks/gr-spacegrant.
-
 You will need swig and pyephem installed:
 
 
 ```bash
-sudo apt-get install swig
+sudo apt-get install swig gnuradio cmake python-pip
 pip install pyephem
 ```
+
+All important blocks needed for flowgraphs are in blocks/gr-spacegrant.
 
 To complie cd into that directory and do:
 ```bash

@@ -747,7 +747,7 @@
     </param>
     <param>
       <key>center_freq</key>
-      <value>-freq_corr+lo_offset</value>
+      <value>freq_corr+lo_offset</value>
     </param>
     <param>
       <key>comment</key>

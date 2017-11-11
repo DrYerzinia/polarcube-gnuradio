@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<block>
+  <name>DeNRZI</name>
+  <key>spacegrant_DeNRZI</key>
+  <category>spacegrant</category>
+  <import>import spacegrant</import>
+  <make>spacegrant.DeNRZI()</make>
+
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>byte</type>
+  </source>
+</block>

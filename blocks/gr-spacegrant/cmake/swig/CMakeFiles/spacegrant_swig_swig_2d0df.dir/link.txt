@@ -1,0 +1,1 @@
+/usr/bin/c++   -O3 -DNDEBUG   CMakeFiles/spacegrant_swig_swig_2d0df.dir/spacegrant_swig_swig_2d0df.cpp.o  -o spacegrant_swig_swig_2d0df -rdynamic 

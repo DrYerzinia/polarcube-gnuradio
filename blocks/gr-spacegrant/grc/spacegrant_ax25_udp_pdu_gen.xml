@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<block>
+  <name>AX25 UDP PDU Generator</name>
+  <key>spacegrant_ax25_udp_pdu_gen</key>
+  <category>spacegrant</category>
+  <import>import spacegrant</import>
+  <make>spacegrant.ax25_udp_pdu_gen($ipaddr, $port, $src_addr, $dest_addr)</make>
+
+	<param>
+		<name>IP Address</name>
+		<key>ipaddr</key>
+		<value>127.0.0.1</value>
+		<type>string</type>
+	</param>
+
+	<param>
+    <name>Destination Address</name>
+		<key>dest_addr</key>
+		<value>KD0WGV-1</value>
+		<type>string</type>
+  </param>
+
+	<param>
+    <name>Source Address</name>
+		<key>src_addr</key>
+		<value>KD0WGV-2</value>
+		<type>string</type>
+  </param>
+
+	<param>
+    <name>Port</name>
+		<key>port</key>
+		<value>1234</value>
+		<type>int</type>
+  </param>
+
+	<source>
+		<name>pdu</name>
+		<type>message</type>
+  </source>
+
+</block>

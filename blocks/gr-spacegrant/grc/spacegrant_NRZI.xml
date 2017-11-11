@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<block>
+  <name>NRZI</name>
+  <key>spacegrant_NRZI</key>
+  <category>spacegrant</category>
+  <import>import spacegrant</import>
+  <make>spacegrant.NRZI()</make>
+
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>byte</type>
+  </source>
+</block>

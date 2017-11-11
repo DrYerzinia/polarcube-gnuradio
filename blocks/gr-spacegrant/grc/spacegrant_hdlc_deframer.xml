@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<block>
+  <name>HDLC Deframer</name>
+  <key>spacegrant_hdlc_deframer</key>
+  <category>spacegrant</category>
+  <import>import spacegrant</import>
+  <make>spacegrant.hdlc_deframer($validate_crc, $min, $max)</make>
+  <param>
+    <name>Validate CRC</name>
+    <key>validate_crc</key>
+    <value>True</value>
+    <type>bool</type>
+  </param>
+  <param>
+    <name>Min length</name>
+    <key>min</key>
+    <value>32</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Max length</name>
+    <key>max</key>
+    <value>500</value>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>message</type>
+</source>
+</block>

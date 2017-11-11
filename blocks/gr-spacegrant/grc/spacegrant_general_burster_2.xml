@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<block>
+  <name>General Burster 2</name>
+  <key>spacegrant_general_burster_2</key>
+  <category>spacegrant</category>
+  <import>import spacegrant</import>
+  <make>spacegrant.general_burster_2()</make>
+
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<block>
+  <name>AX.25 PDU Packer</name>
+  <key>spacegrant_ax25_pdu_packer</key>
+  <category>spacegrant</category>
+  <import>import spacegrant</import>
+  <make>spacegrant.ax25_pdu_packer($src_addr, $dest_addr)</make>
+
+	<param>
+    <name>Destination Address</name>
+		<key>dest_addr</key>
+		<value>KD0WGV-1</value>
+		<type>string</type>
+  </param>
+
+	<param>
+    <name>Source Address</name>
+		<key>src_addr</key>
+		<value>KD0WGV-2</value>
+		<type>string</type>
+  </param>
+
+  <sink>
+		<name>pdu_in</name>
+		<type>message</type>
+  </sink>
+
+	<source>
+		<name>pdu_out</name>
+		<type>message</type>
+  </source>
+
+</block>

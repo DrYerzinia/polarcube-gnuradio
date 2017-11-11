@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<block>
+  <name>AX25 UDP PDU Receiver</name>
+  <key>spacegrant_ax25_udp_pdu_receiver</key>
+  <category>spacegrant</category>
+  <import>import spacegrant</import>
+  <make>spacegrant.ax25_udp_pdu_receiver($ipaddr, $port, $dest_addr)</make>
+
+	<param>
+    <name>Destination Address</name>
+		<key>dest_addr</key>
+		<value>KD0WGV-1</value>
+		<type>string</type>
+  </param>
+
+	<param>
+		<name>Destination IP Address</name>
+		<key>ipaddr</key>
+		<type>string</type>
+	</param>
+
+	<param>
+		<name>Destination Port</name>
+		<key>port</key>
+		<type>int</type>
+  </param>
+
+	<sink>
+		<name>pdu</name>
+		<type>message</type>
+  </sink>
+
+</block>

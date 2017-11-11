@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<block>
+  <name>Message Debug</name>
+  <key>spacegrant_message_debug</key>
+  <category>spacegrant</category>
+  <import>import spacegrant</import>
+  <make>spacegrant.message_debug()</make>
+
+  <sink>
+    <name>pdu</name>
+    <type>message</type>
+  </sink>
+
+</block>

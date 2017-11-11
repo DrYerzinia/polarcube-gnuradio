@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<block>
+  <name>AX.25 PDU Unpacker</name>
+  <key>spacegrant_ax25_pdu_unpacker</key>
+  <category>spacegrant</category>
+  <import>import spacegrant</import>
+  <make>spacegrant.ax25_pdu_unpacker($addr_filt, $src_addr, $dest_addr)</make>
+
+  <param>
+    <name>Address Filtering</name>
+    <key>addr_filt</key>
+    <value>1</value>
+    <type>int</type>
+    <option>
+      <name>None</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Source Only</name>
+      <key>1</key>
+    </option>
+    <option>
+      <name>Destination Only</name>
+      <key>2</key>
+    </option>
+    <option>
+    <name>Both</name>
+      <key>3</key>
+    </option>
+</param>
+
+<param>
+  <name>Destination Address</name>
+  <key>dest_addr</key>
+  <value>KD0WGV-1</value>
+  <type>string</type>
+</param>
+
+<param>
+  <name>Source Address</name>
+  <key>src_addr</key>
+  <value>KD0WGV-2</value>
+  <type>string</type>
+</param>
+
+<sink>
+  <name>pdu_in</name>
+  <type>message</type>
+</sink>
+
+<source>
+  <name>pdu_out</name>
+  <type>message</type>
+</source>
+
+</block>

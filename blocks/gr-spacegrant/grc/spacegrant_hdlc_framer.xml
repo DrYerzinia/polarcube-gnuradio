@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<block>
+  <name>HDLC Framer</name>
+  <key>spacegrant_hdlc_framer</key>
+  <category>spacegrant</category>
+  <import>import spacegrant</import>
+  <make>spacegrant.hdlc_framer($frame_tag_name, $number_of_flags)</make>
+  <param>
+    <name>Frame tag name</name>
+    <key>frame_tag_name</key>
+    <type>string</type>
+  </param>
+  <param>
+    <name>Number of flags</name>
+    <key>number_of_flags</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>message</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>byte</type>
+  </source>
+</block>

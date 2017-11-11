@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/cassini/blocks/gr-spacegrant/lib/qa_spacegrant.cc
+qa_spacegrant.h
+/home/cassini/blocks/gr-spacegrant/lib/qa_spacegrant.h
+
+/home/cassini/blocks/gr-spacegrant/lib/qa_spacegrant.h
+gnuradio/attributes.h
+-
+cppunit/TestSuite.h
+-
+
+/home/cassini/blocks/gr-spacegrant/lib/test_spacegrant.cc
+config.h
+/home/cassini/blocks/gr-spacegrant/lib/config.h
+cppunit/TextTestRunner.h
+-
+cppunit/XmlOutputter.h
+-
+gnuradio/unittests.h
+-
+qa_spacegrant.h
+/home/cassini/blocks/gr-spacegrant/lib/qa_spacegrant.h
+iostream
+-
+fstream
+-
+

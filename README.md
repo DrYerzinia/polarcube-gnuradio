@@ -29,6 +29,8 @@ Located in the GRC directory.
 
 Using the USRP2_WBX_Tun_TapNode:
 * gnuradio-companion must be run as sudo for the TUNTAP device to work
+* Remeber to setup AX.25 addressing and RX address filtering.
+* UFTP requires libssl-dev to compile
 * To get both ends to hear eachother some small Manual Frequency Correction may be required.
 * The following network configurations depend on your IP.
   * sudo ifconfig tun0 192.168.200.1
@@ -53,6 +55,7 @@ Using the USRP2_WBX_Tun_TapNode:
   * stty -F /dev/ttyS2 115200 -crtscts -ixon
   * slattach -L -m -s 115200 -p slip /dev/ttyS2
   * ifconfig sl0 1.1.1.1 pointopoint 1.1.1.2 mtu 256 multicast up
+  * by default UFTP stores files in /tmp if you dont give it a remote directory
 * You should be able to ping between devices as well as run UFTP without issues using this configuration.
 
 ### Interface

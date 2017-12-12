@@ -44,6 +44,15 @@ Using the USRP2_WBX_Tun_TapNode:
     * -r 2 creates a longer timeout to give margin for RX/TX switching
   * ./uftpd -I tun0
     * You must specify interface on server side or it fails
+* Alternate network configuration
+  * sudo ifconfig tun0 1.1.1.2
+  * sudo ip route add 1.1.1.0/24 dev tun0
+  * sudo ip link set dev tun0 mtu 256
+  * uftp -I tun0 -s 10 -r 2:2:2 -b 600 file_name
+* Alternate CDH configuration
+  * stty -F /dev/ttyS2 115200 -crtscts -ixon
+  * slattach -L -m -s 115200 -p slip /dev/ttyS2
+  * ifconfig sl0 1.1.1.1 pointopoint 1.1.1.2 mtu 256 multicast up
 * You should be able to ping between devices as well as run UFTP without issues using this configuration.
 
 ### Interface

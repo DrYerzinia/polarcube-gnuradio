@@ -22,6 +22,7 @@
 #include "config.h"
 #endif
 
+#include <stdio.h>
 #include <gnuradio/io_signature.h>
 #include "ax25_pdu_unpacker_impl.h"
 
@@ -96,7 +97,7 @@ namespace gr {
 
       ///////////////////////////////////////////////////////////////
 
-      uint8_t packet[256];
+      uint8_t packet[300];
       memcpy(packet, d+16, len);
       message_port_pub(pmt::mp("pdu_out"), pmt::cons(pmt::PMT_NIL, pmt::init_u8vector(len-16, (const uint8_t *) &packet)));
 

@@ -94,6 +94,7 @@ int main(int argc, char **argv){
       printf("Timeout\n");
       break;
     }
+
     #ifdef ARM
     printf("Received block: num %llu, tot %llu, len %d\n", b_resp.num, b_resp.tot, b_resp.len);
     #else
@@ -109,10 +110,11 @@ int main(int argc, char **argv){
       // TODO add missing blocks to list for rerequest
       count++;
       #ifdef ARM
-      printf("Missing block %llu\n", count-1);
+      printf("Missing block %llu\n", count);
       #else
-      printf("Missing block %lu\n", count-1);
+      printf("Missing block %lu\n", count);
       #endif
+
       missing++;
     }
 
@@ -128,12 +130,12 @@ int main(int argc, char **argv){
   }
 
   if(missing != 0){
-    #ifdef ARM
-    printf("Missing %llu blocks\n", missing);
-    #else
-    printf("Missing %lu blocks\n", missing);
-    #endif
-  }
+      #ifdef ARM
+        printf("Missing %llu blocks\n", missing);
+      #else
+        printf("Missing %lu blocks\n", missing);
+      #endif
+  } 
 
   fclose(requested_file);
 

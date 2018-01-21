@@ -1,7 +1,7 @@
 #ifndef REQRES_H
 #define REQRES_H
 
-#define BLOCK_LEN 128
+#define BLOCK_LEN 196
 
 typedef struct file_request {
   char filename[64];
@@ -28,8 +28,8 @@ typedef struct file_info {
 
 typedef struct file_block {
   uint8_t type;
-  uint64_t num;
   uint8_t  len;
+  uint64_t num;
   uint8_t  data[BLOCK_LEN];
 } file_block;
 

@@ -8,12 +8,21 @@
 #include "reqres.h"
 
 #define BUFLEN 512
-#define UDP_PORT 8888
+#define UDP_PORT 35777
 
 void die(char *s){
 
   perror(s);
   exit(1);
+
+}
+
+void pack_file_block(uint8_t * buffer, file_block fb){
+
+  buffer[0] = fb.type;
+  buffer[1] = fb.len;
+  memcpy(buffer+2, &fb.num, 8);
+  memcpy(buffer+10,fb.data, BLOCK_LEN);
 
 }
 
@@ -77,7 +86,7 @@ int main(int argc, char **argv){
   }
 
   fseek(file_to_send, 0L, SEEK_END);
-  uint64_t file_blocks = ftell(file_to_send)/128+1;
+  uint64_t file_blocks = ftell(file_to_send)/BLOCK_LEN+1;
   rewind(file_to_send);
 
   file_info fi;
@@ -93,6 +102,7 @@ int main(int argc, char **argv){
   }
 
   uint64_t block_count = 0;
+  uint8_t pkt_buff[256];
   while(1){
     file_block f_block;
     f_block.type = FILE_BLOCK;
@@ -111,7 +121,8 @@ int main(int argc, char **argv){
     #endif
 
     float rnum = ((float)rand()/(float)(RAND_MAX));
-    if(sendto(s, &f_block, sizeof(file_block), 0, (struct sockaddr*) &si_other, slen) == -1){
+    pack_file_block(pkt_buff, f_block);
+    if(sendto(s, &pkt_buff, 138, 0, (struct sockaddr*) &si_other, slen) == -1){
       die("sendto()");
     }
  

@@ -7,16 +7,26 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <getopt.h>
+#include <limits.h>
 
 #include "reqres.h"
 
 #define BUFLEN 512  //Max length of buffer
-#define UDP_PORT 8888   //The port on which to send data
+#define UDP_PORT 35777   //The port on which to send data
  
 void die(char *s)
 {
     perror(s);
     exit(1);
+}
+
+void unpack_file_block(file_block * fb, uint8_t * buffer){
+
+  fb->type = buffer[0];
+  fb->len = buffer[1];
+  memcpy(&(fb->num), buffer+2, 8);
+  memcpy(&(fb->data), buffer+10, BLOCK_LEN);
+
 }
  
 int main(int argc, char **argv){
@@ -51,7 +61,7 @@ int main(int argc, char **argv){
   }
 
   struct timeval tv;
-  tv.tv_sec = 5;
+  tv.tv_sec = 15;
   tv.tv_usec = 0;
   if (setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
     perror("Error");
@@ -83,14 +93,28 @@ int main(int argc, char **argv){
 
   bool first = true;
   file_block f_block;
-  uint64_t count = 0, missing = 0;
+  uint8_t pkt_buff[256];
+  uint64_t last_block = LLONG_MAX, missing = 0, repeat = 0;
   while(true){
 
-    if(recvfrom(s, &f_block, sizeof(file_block), 0, (struct sockaddr *) &si_other, &slen) == -1){
+    if(recvfrom(s, &pkt_buff, 256, 0, (struct sockaddr *) &si_other, &slen) == -1){
       printf("Timeout\n");
       break;
  
-   } else if(f_block.type == FILE_BLOCK){
+   } else if(pkt_buff[0] == FILE_BLOCK){
+
+      unpack_file_block(&f_block, pkt_buff);
+
+      while(f_block.num > last_block + 1){
+        // TODO add missing blocks to list for rerequestst
+        #ifdef ARM
+        printf("Missing block %llu\n", last_block+1);
+        #else
+        printf("Missing block %lu\n", last_block+1);
+        #endif
+        last_block++;
+        missing++;
+      }
 
       #ifdef ARM
       printf("Received block: num %llu, tot %llu, len %d\n", f_block.num, fi.file_blocks, f_block.len);
@@ -98,17 +122,16 @@ int main(int argc, char **argv){
       printf("Received block: num %lu, tot %lu, len %d\n", f_block.num, fi.file_blocks, f_block.len);
       #endif
 
-      while(f_block.num > count){
-        // TODO add missing blocks to list for rerequest
-        count++;
+      if(f_block.num == last_block){
         #ifdef ARM
-        printf("Missing block %llu\n", count);
+        printf("Repeat block %llu\n", last_block);
         #else
-        printf("Missing block %lu\n", count);
+        printf("Repeat block %lu\n", last_block);
         #endif
-
-        missing++;
+        repeat++;
       }
+
+      last_block = f_block.num;
 
       fseek(received_file, f_block.num * BLOCK_LEN, SEEK_SET);
       fwrite(f_block.data, sizeof(uint8_t), BLOCK_LEN, received_file);
@@ -116,8 +139,6 @@ int main(int argc, char **argv){
       if(fi.file_blocks == f_block.num + 1){
         break;
       }
-
-      count++;
 
 
     }
@@ -128,6 +149,14 @@ int main(int argc, char **argv){
         printf("Missing %llu blocks\n", missing);
       #else
         printf("Missing %lu blocks\n", missing);
+      #endif
+  } 
+
+  if(repeat != 0){
+      #ifdef ARM
+        printf("Repeated %llu blocks\n", repeat);
+      #else
+        printf("Repeated %lu blocks\n", repeat);
       #endif
   } 
 

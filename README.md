@@ -67,8 +67,6 @@ command for downlink at 115200
 ./downlink_tx_arm -I sl0 -f F9LM.jpg -s 1.1.1.2 -w 40000
 ./li_control -u 115200 -d 115200 -t 138
 
-
-
 863 packets 196 bytes
 
 50ms 52s 32 lost
@@ -76,7 +74,8 @@ command for downlink at 115200
 45ms 48s 36 lost
 40ms 44s 32 lost 3 resets
 
+### TODO
 
-
-
-
+Radio Firmware
+* LI2 configuration changes from ground
+* SPI transactions

@@ -13,31 +13,31 @@
 #include <pthread.h>
 #include <sys/inotify.h>
 
-void pack_file_block(uint8_t * buffer, file_block fb){
-
-        buffer[0] = fb.type;
-        buffer[1] = fb.len;
-        memcpy(buffer+2, &fb.num, 8);
-        memcpy(buffer+10,fb.data, BLOCK_LEN);
-
-}
-
 int downlink_fd;
 int downlink_wd;
 
-int dl_sock = 0;
+int downlink_sock;
 
 struct sockaddr_in gs_addr = {0};
-size_t gs_addr_len;
+struct sockaddr_in my_addr = {0};
 
-#define GS_DOWNLINK_PORT 35777
-
-useconds_t packet_wait = 40000; // 40ms
+useconds_t packet_wait = 40000*8; // 40ms
 
 #define EVENT_SIZE    (sizeof (struct inotify_event))
 #define EVENT_BUF_LEN (1024 * (EVENT_SIZE + 16))
 
+void pack_file_block(uint8_t * buffer, file_block fb){
+
+        buffer[0] = fb.type;
+        buffer[1] = fb.len;
+        memcpy(buffer+2, &fb.num, 2);
+        memcpy(buffer+4,fb.data, BLOCK_LEN);
+
+}
+
 void send_file(const char * filename){
+
+        int i;
 
         FILE *file_to_send = fopen(filename, "r");
         if(file_to_send == NULL) {
@@ -52,22 +52,21 @@ void send_file(const char * filename){
         file_info fi;
         fi.type = FILE_INFO;
 
-        char * fn = strrchr(filename, '/');
+        const char * fn = strrchr(filename, '/');
         if(fn == NULL) fn = filename;
         else fn += 1;
         strcpy(fi.filename, fn);
-        printf("FN2 %s\n", fn);
-        fi.file_blocks = file_blocks;
-        for(int i = 0; i < 3; i++) {
+        fi.blocks = file_blocks;
+        for(i = 0; i < FILE_INFO_REPEATS; i++) {
                 printf("Sending file-info\n");
-                if(sendto(li_sock, &fi, sizeof(file_info), 0, (struct sockaddr*) &gs_addr, gs_addr_len) == -1) {
+                if(sendto(downlink_sock, &fi, sizeof(file_info), 0, (struct sockaddr*) &gs_addr, sizeof(gs_addr)) == -1) {
                         perror("sendto()");
                         return;
                 }
                 usleep(1000000);
         }
 
-        uint64_t block_count = 0;
+        uint16_t block_count = 0;
         uint8_t pkt_buff[256];
         while(1) {
                 file_block f_block;
@@ -76,21 +75,19 @@ void send_file(const char * filename){
                 f_block.len = fread(f_block.data, sizeof(uint8_t), BLOCK_LEN, file_to_send);
 
                 if(f_block.len == 0) {
-                        printf("Done\n");
+                        printf("Sent\n");
                         break;
                 }
 
-                #ifdef ARM
-                printf("Sending block %llu\n", block_count);
-                #else
-                printf("Sending block %lu\n", block_count);
-                #endif
+                printf("Sending block %u\n", f_block.num);
 
-                float rnum = ((float)rand()/(float)(RAND_MAX));
                 pack_file_block(pkt_buff, f_block);
-                if(sendto(li_sock, &pkt_buff, BLOCK_LEN+10, 0, (struct sockaddr*) &gs_addr, gs_addr_len) == -1) {
-                        perror("sendto()");
-                        return;
+                if(block_count > 20 && block_count < 30) {
+                } else {
+                        if(sendto(downlink_sock, &pkt_buff, BLOCK_LEN+4, 0, (struct sockaddr*) &gs_addr, sizeof(gs_addr)) == -1) {
+                                perror("sendto()");
+                                return;
+                        }
                 }
 
                 usleep(packet_wait);
@@ -98,6 +95,52 @@ void send_file(const char * filename){
                 block_count++;
 
         }
+
+        // TODO 10 second wait for retransmission requests or break on new file info
+        struct sockaddr_in si_other;
+        int slen = sizeof(si_other);
+
+        block_request br = {0};
+
+        while(1) {
+                if(recvfrom(downlink_sock, &br, sizeof(br), 0, (struct sockaddr *) &si_other, &slen) == -1) {
+                        printf("Timeout.\n");
+                        break;
+                }
+
+                if(br.type = BLOCK_REQUEST) {
+                        printf("Missing blocks requested\n");
+
+                        for(i = 0; i < br.num; i++) {
+
+                                file_block f_block;
+                                f_block.type = FILE_BLOCK;
+                                f_block.num = br.blocks[i];
+                                fseek(file_to_send, br.blocks[i] * BLOCK_LEN, SEEK_SET);
+                                f_block.len = fread(f_block.data, sizeof(uint8_t), BLOCK_LEN, file_to_send);
+
+                                printf("Sending block %u\n", f_block.num);
+
+                                pack_file_block(pkt_buff, f_block);
+
+                                if(sendto(downlink_sock, &pkt_buff, BLOCK_LEN+4, 0, (struct sockaddr*) &gs_addr, sizeof(gs_addr)) == -1) {
+                                        perror("sendto()");
+                                        return;
+                                }
+
+                                usleep(packet_wait);
+
+                        }
+
+                } else {
+                        break;
+                }
+        }
+
+        fclose(file_to_send);
+
+        printf("Done\n");
+
 }
 
 void * downlink_dir_monitor(void * v) {
@@ -128,7 +171,7 @@ void * downlink_dir_monitor(void * v) {
                                                 uint8_t buf[256];
                                                 printf("New file %s created.\n", event->name);
                                                 // Encrypt file in /tmp for downlink
-                                                sprintf(buf, "openssl enc -aes-256-cbc -in /opt/downlink/%s -out /tmp/%s", event->name, event->name);
+                                                sprintf(buf, "openssl aes-256-cbc -e -md sha256 -pass pass:%s -in /opt/downlink/%s -out /tmp/%s", "imcool", event->name, event->name);
                                                 system(buf);
                                                 //sprintf(buf, "/opt/downlink/%s", event->name);
                                                 sprintf(buf, "/tmp/%s", event->name);
@@ -144,14 +187,39 @@ void * downlink_dir_monitor(void * v) {
         }
 }
 
-void downlink_init(){
+void downlink_init(const char * nic){
+
+        if((downlink_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
+                fprintf(stderr, "socket");
+                return;
+        }
+
+        if(nic != NULL) {
+                int rc = setsockopt(downlink_sock, SOL_SOCKET, SO_BINDTODEVICE, nic, strlen(nic));
+        }
 
         memset((char *) &gs_addr, 0, sizeof(gs_addr));
         gs_addr.sin_family = AF_INET;
         gs_addr.sin_port = htons(GS_DOWNLINK_PORT);
-        inet_aton("127.0.0.1", &gs_addr.sin_addr);
+        inet_aton("1.1.1.2", &gs_addr.sin_addr);
 
-        gs_addr_len = sizeof(gs_addr);
+        memset((char *) &my_addr, 0, sizeof(my_addr));
+        my_addr.sin_family = AF_INET;
+        my_addr.sin_port = htons(GS_DOWNLINK_PORT);
+        inet_aton("1.1.1.1", &my_addr.sin_addr);
+
+        struct timeval tv;
+        tv.tv_sec = 10;
+        tv.tv_usec = 0;
+        if (setsockopt(downlink_sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
+                fprintf(stderr, "Failed to set dl timeout\n");
+        }
+
+        if(bind(downlink_sock, (struct sockaddr*)&my_addr, sizeof(my_addr)) == -1) {
+                fprintf(stderr, "dl bind failed\n");
+                return;
+
+        }
 
         printf("Starting downlink thread\n");
 

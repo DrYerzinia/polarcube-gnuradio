@@ -30,7 +30,7 @@ void * beacon(void * v) {
                         beacon_buf[0] = 4; // BEACON TYPE
                         size_t read = fread(beacon_buf+1, sizeof(uint8_t), MAX_BEACON_SIZE, beacon_file);
 
-                        if(sendto(li_sock, &beacon_buf, read+1, 0, (struct sockaddr*) &gs_addr, gs_addr_len) == -1) {
+                        if(sendto(li_sock, &beacon_buf, read+1, 0, (struct sockaddr*) &gs_addr, sizeof(gs_addr)) == -1) {
                                 perror("sendto()");
                                 continue;
                         }

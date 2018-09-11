@@ -60,7 +60,8 @@ namespace gr {
       char *out = (char *) output_items[0];
 
       for(int i = 0; i < noutput_items; i++){
-        out[i] = ~in[i];
+        //out[i] = ~in[i];
+        out[i] = !in[i];
       }
 
       // Tell runtime system how many output items we produced.

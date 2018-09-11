@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<block>
+  <name>SPIRIT1 Basic Deframer</name>
+  <key>spacegrant_spirit1_basic_deframer</key>
+  <category>[spacegrant]</category>
+  <import>import spacegrant</import>
+  <import>import pmt</import>
+  <make>spacegrant.spirit1_basic_deframer($preamble_bytes, $sync_bytes, $length_len, $address_len, $control_len, $crc_mode)</make>
+
+  <param>
+    <name>Preamble</name>
+    <key>preamble_bytes</key>
+    <value>pmt.cons(pmt.PMT_NIL, pmt.init_u8vector(4, [0xAA, 0xAA, 0xAA, 0xAA]))</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Sync</name>
+    <key>sync_bytes</key>
+    <value>pmt.cons(pmt.PMT_NIL, pmt.init_u8vector(4, [0x88, 0x88, 0x88, 0x88]))</value>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Length Field Length (bits)</name>
+    <key>length_len</key>
+    <value>8</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Address Field Length</name>
+    <key>address_len</key>
+    <value>0</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Control Field Length</name>
+    <key>control_len</key>
+    <value>0</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>CRC Mode</name>
+    <key>crc_mode</key>
+    <value>0</value>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>message</type>
+  </source>
+</block>

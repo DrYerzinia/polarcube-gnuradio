@@ -33,5 +33,9 @@ install(FILES
     spacegrant_G3RUH_descramble.xml
     spacegrant_sat_doppler_correction.xml
     spacegrant_ax25_pdu_packer.xml
-    spacegrant_ax25_pdu_unpacker.xml DESTINATION share/gnuradio/grc/blocks
+    spacegrant_ax25_pdu_unpacker.xml
+    spacegrant_spirit1_basic_deframer.xml
+    spacegrant_spirit1_basic_framer.xml
+    spacegrant_simple_clock_recovery_fb.xml
+    spacegrant_udp_pdu_receiver.xml DESTINATION share/gnuradio/grc/blocks
 )

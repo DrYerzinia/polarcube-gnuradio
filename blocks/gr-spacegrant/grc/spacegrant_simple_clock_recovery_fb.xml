@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<block>
+  <name>Simple Clock Recovery</name>
+  <key>spacegrant_simple_clock_recovery_fb</key>
+  <category>spacegrant</category>
+  <import>import spacegrant</import>
+  <make>spacegrant.simple_clock_recovery_fb($samples_per_symbol)</make>
+   <param>
+     <name>Samples Per Symbol</name>
+     <key>samples_per_symbol</key>
+     <value></value>
+     <type>int</type>
+   </param>
+   <sink>
+     <name>in</name>
+     <type>float</type>
+   </sink>
+   <source>
+     <name>out</name>
+     <type>byte</type>
+   </source>
+</block>

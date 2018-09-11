@@ -22,6 +22,10 @@
 #include "spacegrant/G3RUH_descramble.h"
 #include "spacegrant/ax25_pdu_packer.h"
 #include "spacegrant/ax25_pdu_unpacker.h"
+#include "spacegrant/spirit1_basic_deframer.h"
+#include "spacegrant/spirit1_basic_framer.h"
+#include "spacegrant/simple_clock_recovery_fb.h"
+#include "spacegrant/udp_pdu_receiver.h"
 %}
 
 
@@ -53,3 +57,11 @@ GR_SWIG_BLOCK_MAGIC2(spacegrant, G3RUH_descramble);
 GR_SWIG_BLOCK_MAGIC2(spacegrant, ax25_pdu_packer);
 %include "spacegrant/ax25_pdu_unpacker.h"
 GR_SWIG_BLOCK_MAGIC2(spacegrant, ax25_pdu_unpacker);
+%include "spacegrant/spirit1_basic_deframer.h"
+GR_SWIG_BLOCK_MAGIC2(spacegrant, spirit1_basic_deframer);
+%include "spacegrant/spirit1_basic_framer.h"
+GR_SWIG_BLOCK_MAGIC2(spacegrant, spirit1_basic_framer);
+%include "spacegrant/simple_clock_recovery_fb.h"
+GR_SWIG_BLOCK_MAGIC2(spacegrant, simple_clock_recovery_fb);
+%include "spacegrant/udp_pdu_receiver.h"
+GR_SWIG_BLOCK_MAGIC2(spacegrant, udp_pdu_receiver);

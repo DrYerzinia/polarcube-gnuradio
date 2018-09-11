@@ -35,5 +35,9 @@ install(FILES
     message_debug.h
     G3RUH_descramble.h
     ax25_pdu_packer.h
-    ax25_pdu_unpacker.h DESTINATION include/spacegrant
+    ax25_pdu_unpacker.h
+    spirit1_basic_deframer.h
+    spirit1_basic_framer.h
+    simple_clock_recovery_fb.h
+    udp_pdu_receiver.h DESTINATION include/spacegrant
 )

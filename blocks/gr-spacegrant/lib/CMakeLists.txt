@@ -40,6 +40,10 @@ list(APPEND spacegrant_sources
     G3RUH_descramble_impl.cc
     ax25_pdu_packer_impl.cc
     ax25_pdu_unpacker_impl.cc
+    spirit1_basic_deframer_impl.cc
+    spirit1_basic_framer_impl.cc
+    simple_clock_recovery_fb_impl.cc
+    udp_pdu_receiver_impl.cc
 )
 
 set(spacegrant_sources "${spacegrant_sources}" PARENT_SCOPE)

@@ -87,7 +87,7 @@ bool is_com_buffer_almost_full(){
 
         int state = atoi(value_str);
 
-        if(state == 1) return false;
+        if(state == 0) return false;
         return true;
 
 }

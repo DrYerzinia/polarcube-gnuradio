@@ -25,7 +25,7 @@ build/obj/beacon.o: downlink/beacon.c
 	gcc -o $@ -c $?
 
 bin/comm_daemon_arm: build/obj/comm_daemon_arm.o build/obj/downlink_arm.o build/obj/li2_arm.o build/obj/beacon_arm.o build/obj/uplink_arm.o
-	arm-linux-gnueabi-gcc $(CARMFLAGS) -o $@ $? -lpthread
+	arm-linux-gnueabi-gcc $(CARMFLAGS) -static -o $@ $? -lpthread
 
 build/obj/comm_daemon_arm.o: comm_daemon.c
 	arm-linux-gnueabi-gcc $(CARMFLAGS) -o $@ -c $?

@@ -10,6 +10,8 @@
 #define FILE_INFO  1
 #define FILE_BLOCK 2
 #define BLOCK_REQUEST 3
+#define BEACON 0x69
+#define DL_DONE 5
 
 typedef struct file_info {
   uint8_t type;

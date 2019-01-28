@@ -3,13 +3,14 @@
 
 #include <unistd.h>
 
-#define NET_INTERFACE "sl0"
-
 int main(int argc, char **argv){
 
-        li_init(NET_INTERFACE);
-        downlink_init(NET_INTERFACE);
-        uplink_init(NET_INTERFACE);
+        li_init("sl0");
+
+        downlink_init("sl0");
+        uplink_init("sl0");
+
+		beacon_init();
 
         while(1) {
                 usleep(1000000);

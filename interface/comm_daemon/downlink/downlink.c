@@ -12,6 +12,8 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include <sys/inotify.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 int downlink_fd;
 int downlink_wd;
@@ -19,9 +21,10 @@ int downlink_wd;
 int downlink_sock;
 
 struct sockaddr_in gs_addr = {0};
+struct sockaddr_in beacon_addr = {0};
 struct sockaddr_in my_addr = {0};
 
-useconds_t packet_wait = 40000*8; // 40ms
+useconds_t packet_wait = 30000; // 30ms
 
 #define EVENT_SIZE    (sizeof (struct inotify_event))
 #define EVENT_BUF_LEN (1024 * (EVENT_SIZE + 16))
@@ -35,9 +38,68 @@ void pack_file_block(uint8_t * buffer, file_block fb){
 
 }
 
+void enable_flow_control(){
+
+        printf("Exporting PC26 GPIO90 ACK for Flow Control\n");
+
+        int fd;
+
+        // Export flow contol GPIO in sysfs
+        fd = open("/sys/class/gpio/export", O_WRONLY);
+        if (-1 == fd) {
+                fprintf(stderr, "Failed to open export for writing!\n");
+                return;
+        }
+        write(fd, "90", 2);
+        close(fd);
+
+        // Set flow contron GPIO as input
+        fd = open("/sys/class/gpio/pioC26/direction", O_WRONLY);
+        if(-1 == fd) {
+                fprintf(stderr, "Failed to open gpio direction for writing!\n");
+                return;
+        }
+        if(-1 == write(fd, "in", 2)) {
+                fprintf(stderr, "Failed to set direction!\n");
+                return;
+        }
+        close(fd);
+
+}
+
+bool is_com_buffer_almost_full(){
+
+        char value_str[3];
+        int fd;
+
+        fd = open("/sys/class/gpio/pioC26/value", O_RDONLY);
+        if (-1 == fd) {
+                fprintf(stderr, "Failed to open gpio value for reading!\n");
+                return false;
+        }
+
+        if (-1 == read(fd, value_str, 3)) {
+                fprintf(stderr, "Failed to read value!\n");
+                return false;
+        }
+
+        close(fd);
+
+        int state = atoi(value_str);
+
+        if(state == 0) return false;
+        return true;
+
+}
+
 void send_file(const char * filename){
 
         int i;
+        uint16_t block_count = 0;
+        uint8_t pkt_buff[256];
+
+        struct sockaddr_in si_other;
+        int slen = sizeof(si_other);
 
         FILE *file_to_send = fopen(filename, "r");
         if(file_to_send == NULL) {
@@ -58,16 +120,14 @@ void send_file(const char * filename){
         strcpy(fi.filename, fn);
         fi.blocks = file_blocks;
         for(i = 0; i < FILE_INFO_REPEATS; i++) {
-                printf("Sending file-info\n");
+                printf("Sending file-info size %u\n", sizeof(file_info));
                 if(sendto(downlink_sock, &fi, sizeof(file_info), 0, (struct sockaddr*) &gs_addr, sizeof(gs_addr)) == -1) {
                         perror("sendto()");
                         return;
                 }
-                usleep(1000000);
+                usleep(500000);
         }
 
-        uint16_t block_count = 0;
-        uint8_t pkt_buff[256];
         while(1) {
                 file_block f_block;
                 f_block.type = FILE_BLOCK;
@@ -82,34 +142,48 @@ void send_file(const char * filename){
                 printf("Sending block %u\n", f_block.num);
 
                 pack_file_block(pkt_buff, f_block);
-                if(block_count > 20 && block_count < 30) {
-                } else {
-                        if(sendto(downlink_sock, &pkt_buff, BLOCK_LEN+4, 0, (struct sockaddr*) &gs_addr, sizeof(gs_addr)) == -1) {
-                                perror("sendto()");
-                                return;
-                        }
+                if(sendto(downlink_sock, &pkt_buff, BLOCK_LEN+4, 0, (struct sockaddr*) &gs_addr, sizeof(gs_addr)) == -1) {
+                        perror("sendto()");
+                        return;
                 }
 
                 usleep(packet_wait);
+                while(is_com_buffer_almost_full()) usleep(packet_wait*4);
 
                 block_count++;
+
+                // Ignore uplined packets
+                fd_set readfds;
+                FD_ZERO(&readfds);
+                FD_SET(downlink_sock, &readfds);
+                struct timeval tv;
+                tv.tv_sec = 0;
+                tv.tv_usec = 0;
+                while(select(downlink_sock+1, &readfds, NULL, NULL, &tv) == 1) {
+                        recvfrom(downlink_sock, &pkt_buff, sizeof(256), 0, (struct sockaddr *) &si_other, &slen);
+                        printf("Deleting uplink packet!\n");
+                }
 
         }
 
         // TODO 10 second wait for retransmission requests or break on new file info
-        struct sockaddr_in si_other;
-        int slen = sizeof(si_other);
 
         block_request br = {0};
 
+        int retry_counter = 0;
         while(1) {
                 if(recvfrom(downlink_sock, &br, sizeof(br), 0, (struct sockaddr *) &si_other, &slen) == -1) {
-                        printf("Timeout.\n");
-                        break;
+                        printf("Timeout. retry: %u\n", retry_counter);
+                        if(retry_counter >= 4) {
+                                break;
+                        }
+                        retry_counter++;
+                        br.type = 0;
                 }
-
-                if(br.type = BLOCK_REQUEST) {
+                if(br.type == BLOCK_REQUEST) {
                         printf("Missing blocks requested\n");
+
+                        retry_counter = 0;
 
                         for(i = 0; i < br.num; i++) {
 
@@ -129,11 +203,15 @@ void send_file(const char * filename){
                                 }
 
                                 usleep(packet_wait);
+                                while(is_com_buffer_almost_full()) usleep(packet_wait*4);
 
                         }
 
-                } else {
+                } else if(br.type == DL_DONE) {
+                        printf("DL Done\n");
                         break;
+                } else {
+                        printf("Unexpected Type: %u", br.type);
                 }
         }
 
@@ -173,12 +251,15 @@ void * downlink_dir_monitor(void * v) {
                                                 // Encrypt file in /tmp for downlink
                                                 sprintf(buf, "openssl aes-256-cbc -e -md sha256 -pass pass:%s -in /opt/downlink/%s -out /tmp/%s", "imcool", event->name, event->name);
                                                 system(buf);
-                                                //sprintf(buf, "/opt/downlink/%s", event->name);
                                                 sprintf(buf, "/tmp/%s", event->name);
                                                 beacon_enabled = false;
                                                 send_file(buf);
                                                 beacon_enabled = true;
                                                 remove(buf);
+                                                printf("Delete: %s\n", buf);
+                                                sprintf(buf, "/opt/downlink/%s", event->name);
+                                                remove(buf);
+                                                printf("Delete: %s\n", buf);
                                         }
                                 }
                         }
@@ -203,13 +284,18 @@ void downlink_init(const char * nic){
         gs_addr.sin_port = htons(GS_DOWNLINK_PORT);
         inet_aton("1.1.1.2", &gs_addr.sin_addr);
 
+        memset((char *) &beacon_addr, 0, sizeof(beacon_addr));
+        beacon_addr.sin_family = AF_INET;
+        beacon_addr.sin_port = htons(35770);
+        inet_aton("1.1.1.2", &beacon_addr.sin_addr);
+
         memset((char *) &my_addr, 0, sizeof(my_addr));
         my_addr.sin_family = AF_INET;
         my_addr.sin_port = htons(GS_DOWNLINK_PORT);
         inet_aton("1.1.1.1", &my_addr.sin_addr);
 
         struct timeval tv;
-        tv.tv_sec = 10;
+        tv.tv_sec = 5;
         tv.tv_usec = 0;
         if (setsockopt(downlink_sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
                 fprintf(stderr, "Failed to set dl timeout\n");
@@ -220,6 +306,8 @@ void downlink_init(const char * nic){
                 return;
 
         }
+
+        enable_flow_control();
 
         printf("Starting downlink thread\n");
 

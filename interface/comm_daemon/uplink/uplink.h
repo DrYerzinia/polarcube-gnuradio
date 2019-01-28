@@ -3,6 +3,7 @@
 
 #include "../types/comm.h"
 #include "../li2/li2.h"
+#include "../downlink/beacon.h"
 
 #define GS_UPLINK_PORT 35778
 

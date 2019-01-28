@@ -48,6 +48,8 @@ void receive_file_blocks(uint8_t * r_blocks, FILE * received_file, uint16_t bloc
                         break;
                 }
 
+				beacon_delay = true;
+
                 if(fb.type != FILE_BLOCK) {
                         continue;
                 }
@@ -70,7 +72,7 @@ void * uplink_thread(void * v) {
         int slen = sizeof(si_other);
         int recv_len;
 
-        printf("Uplink receive loop started\n");
+        fprintf(stderr, "Uplink receive loop started\n");
 
         while(1) {
 
@@ -79,6 +81,8 @@ void * uplink_thread(void * v) {
                         printf("Timeout for receiving fileinfo.\n");
                         continue;
                 }
+
+				beacon_delay = true;
 
                 if(fi.type == FILE_INFO) {
                         printf("Received fileinfo %s\n", fi.filename);
@@ -100,6 +104,7 @@ void * uplink_thread(void * v) {
 
                 printf("Receiving the file blocks...\n");
 
+				uint8_t retry_counter = 0;
                 while(1) {
 
                         receive_file_blocks(r_blocks, received_file, fi.blocks);
@@ -108,6 +113,7 @@ void * uplink_thread(void * v) {
                         if(!missing) {
 
                                 fflush(received_file);
+                                fclose(received_file);
 
                                 printf("No blocks missing, uplink finished.\n");
 
@@ -131,13 +137,19 @@ void * uplink_thread(void * v) {
                                         }
                                 }
                                 printf("Requesting %u missing blocks.\n", missing);
+								retry_counter++;
 
                                 if(sendto(uplink_sock, &br, sizeof(block_request), 0, (struct sockaddr*) &si_other, slen) == -1) {
                                         fprintf(stderr, "sendto()");
                                 }
+
+								// TODO: Validate retry counter
+								if(retry_counter > 5){
+	                                fclose(received_file);
+									break;
+								}
                         }
                 }
-                fclose(received_file);
         }
 
         close(uplink_sock);
@@ -163,7 +175,7 @@ void uplink_init(const char * nic){
 
 
         struct timeval tv;
-        tv.tv_sec = 5;
+        tv.tv_sec = 7;
         tv.tv_usec = 0;
         if (setsockopt(uplink_sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
                 fprintf(stderr, "Failed to set timeout");

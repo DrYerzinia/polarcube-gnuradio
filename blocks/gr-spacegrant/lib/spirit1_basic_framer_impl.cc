@@ -1,17 +1,17 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2018 <+YOU OR YOUR COMPANY+>.
- * 
+ *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this software; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 51 Franklin Street,
@@ -75,10 +75,10 @@ namespace gr {
               int l = 7-j;
               uint8_t next_bit = (data[i] >> l) & 1;
 
-              if(i > 7){ // After preamble/sync
+              if(i > 3){ // After preamble/sync
 
                 next_bit ^= (lfsr[0] >> 7);
- 	
+
                 uint16_t lfsr_bit = ((lfsr[0] & 0x80) >> 7) ^ ((lfsr[5] & 0x80) >> 7);
 
                 int k;
@@ -168,22 +168,22 @@ namespace gr {
         if(!pmt::is_blob(blob))
             throw std::runtime_error("HDLC framer: PMT must be blob");
 
-        std::vector<unsigned char> pkt(pmt::blob_length(blob)+10);
+        std::vector<unsigned char> pkt(pmt::blob_length(blob)+6);
 
         // Add framing
-        uint8_t pre_sync[] = {0xAA, 0xAA, 0xAA, 0xAA, 0x88, 0x88, 0x88, 0x88};
-        memcpy(&pkt[0], pre_sync, 8);
+        uint8_t pre_sync[] = {0x88, 0x88, 0x88, 0x88};
+        memcpy(&pkt[0], pre_sync, 4);
 
         // Add length
-        pkt[8] = pmt::blob_length(blob);
+        pkt[4] = pmt::blob_length(blob);
 
-        memcpy(&pkt[9], (const unsigned char *) pmt::blob_data(blob), pmt::blob_length(blob));
+        memcpy(&pkt[5], (const unsigned char *) pmt::blob_data(blob), pmt::blob_length(blob));
 
         //calc CRC
-        uint8_t crc = crc8(crc_table, &pkt[9], pmt::blob_length(blob)+1, 0xFF);
+        uint8_t crc = crc8(crc_table, &pkt[5], pmt::blob_length(blob)+1, 0xFF);
 
         //append CRC
-        pkt[9+pmt::blob_length(blob)] = crc;
+        pkt[5+pmt::blob_length(blob)] = crc;
 
         //unpack to LSb bits
         std::vector<unsigned char> pkt_bits = unpack(pkt);
@@ -215,4 +215,3 @@ namespace gr {
 
   } /* namespace spacegrant */
 } /* namespace gr */
-

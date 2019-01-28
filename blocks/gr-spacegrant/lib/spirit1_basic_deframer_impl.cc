@@ -99,6 +99,41 @@ namespace gr {
     {
     }
 
+		#include <arpa/inet.h>
+		#include <sys/socket.h>
+		#include <unistd.h>
+
+		uint16_t checksum(void* vdata, size_t length){
+		    // Cast the data pointer to one that can be indexed.
+		    char* data=(char*)vdata;
+
+		    // Initialise the accumulator.
+		    uint32_t acc=0xffff;
+
+		    // Handle complete 16-bit blocks.
+		    for (size_t i=0;i+1<length;i+=2) {
+		        uint16_t word;
+		        memcpy(&word,data+i,2);
+		        acc+=ntohs(word);
+		        if (acc>0xffff) {
+		            acc-=0xffff;
+		        }
+		    }
+
+		    // Handle any partial block at the end of the data.
+		    if (length&1) {
+		        uint16_t word=0;
+		        memcpy(&word,data+length-1,1);
+		        acc+=ntohs(word);
+		        if (acc>0xffff) {
+		            acc-=0xffff;
+		        }
+		    }
+
+		    // Return the checksum in network byte order.
+		    return htons(~acc);
+		}
+
     int
     spirit1_basic_deframer_impl::work(int noutput_items,
         gr_vector_const_void_star &input_items,
@@ -231,9 +266,44 @@ namespace gr {
               if(bit_counter == 8){
 
                 if(crc == computed_crc){
-		              pmt::pmt_t pdu(pmt::cons(pmt::PMT_NIL, pmt::make_blob(packet_data_buffer, packet_length)));
+
+						      uint8_t packet[300];
+
+						      // Recreate IP header if was stripped
+						      if(packet_data_buffer[0] < 6){
+						        uint8_t header[] = {0x45, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00,
+						                            0x40, 0x11, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01,
+						                            0x01, 0x01, 0x01, 0x02, 0x8b, 0xc1, 0x8b, 0xc1,
+						                            0x00, 0x00, 0x00, 0x00};
+
+						        memcpy(packet+27, packet_data_buffer, packet_length);
+						        memcpy(packet, &header, 28);
+
+						        packet[2] = ((packet_length+11) & 0xff00)>>8;
+						        packet[3] = (packet_length+11) & 0xff;
+
+						        uint16_t ics = checksum(packet, 20);
+						        packet[11] = (ics & 0xff00)>>8;
+						        packet[10] = ics & 0xff;
+
+						        packet[24] = ((packet_length-17) & 0xff00)>>8;
+						        packet[25] = (packet_length-17) & 0xff;
+						        //uint16_t cs = udp_checksum((uint16_t*)packet+20, len-9, (uint16_t*)inet_addr("1.1.1.1"), (uint16_t*)inet_addr("1.1.1.2"));
+						        //packet[27] = (cs & 0xff00)>>8;
+						        //packet[26] = cs & 0xff;
+
+						      } else {
+						        memcpy(packet, packet_data_buffer, packet_length);
+						      }
+
+		              pmt::pmt_t pdu(pmt::cons(pmt::PMT_NIL, pmt::make_blob(packet, packet_length)));
 		              message_port_pub(pmt::mp("out"), pdu);
-                }
+
+                } else {
+
+									printf("CRC Fail");
+
+								}
 
                 memset(packet_data_buffer, 0, 300);
                 //printf("CRC         : %02X\n", crc);

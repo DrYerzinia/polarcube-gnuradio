@@ -180,7 +180,7 @@ namespace gr {
         memcpy(&pkt[5], (const unsigned char *) pmt::blob_data(blob), pmt::blob_length(blob));
 
         //calc CRC
-        uint8_t crc = crc8(crc_table, &pkt[5], pmt::blob_length(blob)+1, 0xFF);
+        uint8_t crc = crc8(crc_table, &pkt[4], pmt::blob_length(blob)+1, 0xFF);
 
         //append CRC
         pkt[5+pmt::blob_length(blob)] = crc;

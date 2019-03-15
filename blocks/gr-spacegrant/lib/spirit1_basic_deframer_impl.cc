@@ -279,18 +279,20 @@ namespace gr {
 						        memcpy(packet+27, packet_data_buffer, packet_length);
 						        memcpy(packet, &header, 28);
 
-						        packet[2] = ((packet_length+11) & 0xff00)>>8;
-						        packet[3] = (packet_length+11) & 0xff;
+						        packet[2] = ((packet_length+28) & 0xff00)>>8;
+						        packet[3] = (packet_length+28) & 0xff;
 
 						        uint16_t ics = checksum(packet, 20);
 						        packet[11] = (ics & 0xff00)>>8;
 						        packet[10] = ics & 0xff;
 
-						        packet[24] = ((packet_length-17) & 0xff00)>>8;
-						        packet[25] = (packet_length-17) & 0xff;
+						        packet[24] = ((packet_length+8) & 0xff00)>>8;
+						        packet[25] = (packet_length+8) & 0xff;
 						        //uint16_t cs = udp_checksum((uint16_t*)packet+20, len-9, (uint16_t*)inet_addr("1.1.1.1"), (uint16_t*)inet_addr("1.1.1.2"));
 						        //packet[27] = (cs & 0xff00)>>8;
 						        //packet[26] = cs & 0xff;
+
+										packet_length += 28;
 
 						      } else {
 						        memcpy(packet, packet_data_buffer, packet_length);

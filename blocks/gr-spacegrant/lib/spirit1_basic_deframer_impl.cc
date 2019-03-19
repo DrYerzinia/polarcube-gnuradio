@@ -276,7 +276,7 @@ namespace gr {
 						                            0x01, 0x01, 0x01, 0x02, 0x8b, 0xc1, 0x8b, 0xc1,
 						                            0x00, 0x00, 0x00, 0x00};
 
-						        memcpy(packet+27, packet_data_buffer, packet_length);
+						        memcpy(packet+28, packet_data_buffer, packet_length);
 						        memcpy(packet, &header, 28);
 
 						        packet[2] = ((packet_length+28) & 0xff00)>>8;

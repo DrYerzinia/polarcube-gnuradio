@@ -43,7 +43,7 @@ foreach(incdir ${GNURADIO_RUNTIME_INCLUDE_DIRS})
     list(APPEND GR_SWIG_INCLUDE_DIRS ${incdir}/gnuradio/swig)
 endforeach(incdir)
 
-set(GR_SWIG_LIBRARIES gnuradio-spacegrant)
+set(GR_SWIG_LIBRARIES gnuradio-spacegrant uhd)
 set(GR_SWIG_DOC_FILE ${CMAKE_CURRENT_BINARY_DIR}/spacegrant_swig_doc.i)
 set(GR_SWIG_DOC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 

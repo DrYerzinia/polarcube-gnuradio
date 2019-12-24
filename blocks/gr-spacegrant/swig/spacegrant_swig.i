@@ -26,6 +26,7 @@
 #include "spacegrant/spirit1_basic_framer.h"
 #include "spacegrant/simple_clock_recovery_fb.h"
 #include "spacegrant/udp_pdu_receiver.h"
+#include "spacegrant/sg_uhd_usrp_sink.h"
 %}
 
 
@@ -65,3 +66,6 @@ GR_SWIG_BLOCK_MAGIC2(spacegrant, spirit1_basic_framer);
 GR_SWIG_BLOCK_MAGIC2(spacegrant, simple_clock_recovery_fb);
 %include "spacegrant/udp_pdu_receiver.h"
 GR_SWIG_BLOCK_MAGIC2(spacegrant, udp_pdu_receiver);
+
+%include "spacegrant/sg_uhd_usrp_sink.h"
+GR_SWIG_BLOCK_MAGIC2(spacegrant, sg_uhd_usrp_sink);

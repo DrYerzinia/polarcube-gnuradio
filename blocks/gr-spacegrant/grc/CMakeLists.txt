@@ -16,7 +16,6 @@
 # along with GNU Radio; see the file COPYING.  If not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
-
 install(FILES
     spacegrant_udp_debug.xml
     spacegrant_hdlc_framer.xml
@@ -37,5 +36,6 @@ install(FILES
     spacegrant_spirit1_basic_deframer.xml
     spacegrant_spirit1_basic_framer.xml
     spacegrant_simple_clock_recovery_fb.xml
-    spacegrant_udp_pdu_receiver.xml DESTINATION share/gnuradio/grc/blocks
+    spacegrant_udp_pdu_receiver.xml
+    spacegrant_sg_uhd_usrp_sink.xml DESTINATION share/gnuradio/grc/blocks
 )

@@ -1,4 +1,4 @@
-# Copyright 2011,2012 Free Software Foundation, Inc.
+# Copyright 2011,2013 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -18,27 +18,13 @@
 # Boston, MA 02110-1301, USA.
 
 ########################################################################
-# Install public header files
+# Install header files
 ########################################################################
 install(FILES
     api.h
-    udp_debug.h
-    hdlc_framer.h
-    ax25_udp_pdu_gen.h
-    ax25_udp_pdu_receiver.h
-    general_burster_2.h
-    binary_sink.h
-    NRZI.h
-    DeNRZI.h
-    invert_bit.h
-    hdlc_deframer.h
-    message_debug.h
-    G3RUH_descramble.h
-    ax25_pdu_packer.h
-    ax25_pdu_unpacker.h
-    spirit1_basic_deframer.h
-    spirit1_basic_framer.h
-    simple_clock_recovery_fb.h
-    udp_pdu_receiver.h
-    sg_uhd_usrp_sink.h DESTINATION include/spacegrant
+    usrp_block.h
+    usrp_source.h
+    usrp_sink.h
+    amsg_source.h
+    DESTINATION ${GR_INCLUDE_DIR}/gnuradio/uhd
 )

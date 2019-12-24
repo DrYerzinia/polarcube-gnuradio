@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<block>
+  <name>SpaceGrant UHD USRP Sink</name>
+  <key>spacegrant_sg_uhd_usrp_sink</key>
+  <category>[spacegrant]</category>
+  <import>import spacegrant</import>
+  <make>spacegrant.sg_uhd_usrp_sink($dev_addr, $stream_args, $length_tag_name)</make>
+
+	<param>
+    <name>Device Address</name>
+		<key>dev_addr</key>
+		<value></value>
+		<type>string</type>
+  </param>
+
+	<param>
+    <name>Stream args</name>
+		<key>stream_args</key>
+		<value></value>
+		<type>string</type>
+  </param>
+
+	<param>
+    <name>Length Tag Name</name>
+		<key>length_tag_name</key>
+		<value></value>
+		<type>string</type>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+
+</block>

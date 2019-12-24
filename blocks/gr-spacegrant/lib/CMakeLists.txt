@@ -24,7 +24,6 @@ include(GrPlatform) #define LIB_SUFFIX
 
 include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
-
 list(APPEND spacegrant_sources
     udp_debug_impl.cc
     hdlc_framer_impl.cc
@@ -44,6 +43,7 @@ list(APPEND spacegrant_sources
     spirit1_basic_framer_impl.cc
     simple_clock_recovery_fb_impl.cc
     udp_pdu_receiver_impl.cc
+    sg_uhd_usrp_sink_impl.cc
 )
 
 set(spacegrant_sources "${spacegrant_sources}" PARENT_SCOPE)
@@ -91,6 +91,7 @@ target_link_libraries(
   ${Boost_LIBRARIES}
   ${CPPUNIT_LIBRARIES}
   gnuradio-spacegrant
+  uhd
 )
 
 GR_ADD_TEST(test_spacegrant test-spacegrant)

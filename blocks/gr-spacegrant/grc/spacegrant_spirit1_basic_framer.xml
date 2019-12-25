@@ -2,7 +2,7 @@
 <block>
   <name>SPRIT1 Basic Framer</name>
   <key>spacegrant_spirit1_basic_framer</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <import>import pmt</import>
   <make>spacegrant.spirit1_basic_framer($preamble_bytes, $sync_bytes, $length_len, $address_len, $control_len, $crc_mode)</make>

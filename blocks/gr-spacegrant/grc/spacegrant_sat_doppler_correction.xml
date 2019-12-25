@@ -2,7 +2,7 @@
 <block>
   <name>Sat Doppler Correction</name>
   <key>spaegrant_sat_doppler_correction</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <make>spacegrant.sat_doppler_correction(self.set_$target(), $sat_freq(), "$tle1()", "$tle2()", "$longitude()", "$latitude()", $elevation())</make>
 

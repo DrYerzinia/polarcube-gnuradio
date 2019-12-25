@@ -2,7 +2,7 @@
 <block>
   <name>Binary Sink</name>
   <key>spacegrant_binary_sink</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <make>spacegrant.binary_sink()</make>
 

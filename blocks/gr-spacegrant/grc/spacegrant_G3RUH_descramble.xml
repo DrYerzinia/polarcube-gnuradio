@@ -2,7 +2,7 @@
 <block>
   <name>G3RUH Descramble</name>
   <key>spacegrant_G3RUH_descramble</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <make>spacegrant.G3RUH_descramble()</make>
 

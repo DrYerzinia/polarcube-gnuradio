@@ -115,19 +115,18 @@ namespace spacegrant {
 
 const double usrp_sink_impl::LOCK_TIMEOUT = 1.5;
 
-sg_uhd_usrp_sink::sptr sg_uhd_usrp_sink::make(const  std::string& device_addr,
-                                const  std::string& stream_args,
-                                const std::string& length_tag_name)
+sg_uhd_usrp_sink::sptr sg_uhd_usrp_sink::make(const std::string& device_addr,
+                                              const ::uhd::stream_args_t& stream_args,
+                                              const std::string& length_tag_name)
 {
     check_abi();
 
     std::cerr << "sg_uhd_usrp_sink::sptr sg_uhd_usrp_sink::make" << std::endl;
 
-    const ::uhd::device_addr_t& device_addr_2(device_addr);
-    const ::uhd::stream_args_t& stream_args_2(stream_args);
+    ::uhd::device_addr_t device_addr_2(device_addr);
 
     return sg_uhd_usrp_sink::sptr(new usrp_sink_impl(
-        device_addr_2, stream_args_ensure(stream_args_2), length_tag_name));
+        device_addr_2, stream_args_ensure(stream_args), length_tag_name));
 }
 
 usrp_sink_impl::usrp_sink_impl(const ::uhd::device_addr_t& device_addr,

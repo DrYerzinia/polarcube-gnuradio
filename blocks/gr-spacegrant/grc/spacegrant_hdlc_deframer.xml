@@ -2,7 +2,7 @@
 <block>
   <name>HDLC Deframer</name>
   <key>spacegrant_hdlc_deframer</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <make>spacegrant.hdlc_deframer($validate_crc, $min, $max)</make>
   <param>

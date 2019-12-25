@@ -2,7 +2,7 @@
 <block>
   <name>AX.25 PDU Unpacker</name>
   <key>spacegrant_ax25_pdu_unpacker</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <make>spacegrant.ax25_pdu_unpacker($addr_filt, $src_addr, $dest_addr)</make>
 

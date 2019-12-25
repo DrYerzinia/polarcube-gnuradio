@@ -2,7 +2,7 @@
 <block>
   <name>DeNRZI</name>
   <key>spacegrant_DeNRZI</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <make>spacegrant.DeNRZI()</make>
 

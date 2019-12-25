@@ -48,8 +48,16 @@ namespace gr {
        * creating new instances.
        */
       static sptr make(const std::string& device_addr,
-                                const std::string& stream_args,
-                                const std::string& length_tag_name);
+                       const ::uhd::stream_args_t& stream_args,
+                       const std::string& length_tag_name);
+
+      virtual ::uhd::tune_result_t set_center_freq(const ::uhd::tune_request_t tune_request,
+                                                   size_t chan = 0) = 0;
+      ::uhd::tune_result_t set_center_freq(double freq, size_t chan = 0)
+      {
+          return set_center_freq(::uhd::tune_request_t(freq), chan);
+      }
+      virtual void set_samp_rate(double rate) = 0;
 
     };
 

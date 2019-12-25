@@ -2,7 +2,7 @@
 <block>
   <name>UDP Debug</name>
   <key>spacegrant_udp_debug</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <make>spacegrant.udp_debug()</make>
   <sink>

@@ -2,7 +2,7 @@
 <block>
   <name>AX25 UDP PDU Generator</name>
   <key>spacegrant_ax25_udp_pdu_gen</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <make>spacegrant.ax25_udp_pdu_gen($ipaddr, $port, $src_addr, $dest_addr)</make>
 

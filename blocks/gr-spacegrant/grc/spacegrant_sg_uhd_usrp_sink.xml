@@ -1,35 +1,165 @@
 <?xml version="1.0"?>
 <block>
-  <name>SpaceGrant UHD USRP Sink</name>
-  <key>spacegrant_sg_uhd_usrp_sink</key>
-  <category>[spacegrant]</category>
-  <import>import spacegrant</import>
-  <make>spacegrant.sg_uhd_usrp_sink($dev_addr, $stream_args, $length_tag_name)</make>
+	<name>SpaceGrant UHD USRP Sink</name>
+	<key>spacegrant_sg_uhd_usrp_sink</key>
+	<category>[spacegrant]</category>
+	<flags>throttle</flags>
+	<import>from gnuradio import uhd</import>
+	<import>import spacegrant</import>
+	<make>spacegrant.sg_uhd_usrp_sink(
+	",".join(($dev_addr, $dev_args)),
+ 	uhd.stream_args(
+		cpu_format="$type",
+		#if $otw()
+		otw_format=$otw,
+		#end if
+		#if $stream_args()
+		args=$stream_args,
+		#end if
+		#if $stream_chans()
+		channels=$stream_chans,
+		#else
+		channels=range(1),
+		#end if
+	),
+	$len_tag_name
+)
+self.$(id).set_center_freq($center_freq0, 0)
+self.$(id).set_samp_rate($samp_rate)
+	</make>
+	<callback>set_samp_rate($samp_rate)</callback>
+	<callback>set_center_freq($center_freq0, 0)</callback>
 
 	<param>
-    <name>Device Address</name>
-		<key>dev_addr</key>
+		<name>Input Type</name>
+		<key>type</key>
+		<type>enum</type>
+		<option>
+			<name>Complex float32</name>
+			<key>fc32</key>
+			<opt>type:fc32</opt>
+		</option>
+		<option>
+			<name>Complex int16</name>
+			<key>sc16</key>
+			<opt>type:sc16</opt>
+		</option>
+		<option>
+			<name>VITA word32</name>
+			<key>item32</key>
+			<opt>type:s32</opt>
+		</option>
+	</param>
+	<param>
+		<name>Wire Format</name>
+		<key>otw</key>
 		<value></value>
 		<type>string</type>
-  </param>
-
+		<hide>
+			#if $otw()
+				none
+			#else
+				part
+			#end if
+		</hide>
+		<option>
+			<name>Automatic</name>
+			<key></key>
+		</option>
+		<option>
+			<name>Complex int16</name>
+			<key>sc16</key>
+		</option>
+		<option>
+			<name>Complex int12</name>
+			<key>sc12</key>
+		</option>
+		<option>
+			<name>Complex int8</name>
+			<key>sc8</key>
+		</option>
+	</param>
 	<param>
-    <name>Stream args</name>
+		<name>Stream args</name>
 		<key>stream_args</key>
 		<value></value>
 		<type>string</type>
-  </param>
-
+		<hide>
+			#if $stream_args()
+				none
+			#else
+				part
+			#end if
+		</hide>
+		<option>
+			<name>peak=0.003906</name>
+			<key>peak=0.003906</key>
+		</option>
+	</param>
 	<param>
-    <name>Length Tag Name</name>
-		<key>length_tag_name</key>
+		<name>Stream channels</name>
+		<key>stream_chans</key>
+		<value>[]</value>
+		<type>int_vector</type>
+		<hide>
+			#if $stream_chans()
+				none
+			#else
+				part
+			#end if
+		</hide>
+	</param>
+	<param>
+		<name>Device Address</name>
+		<key>dev_addr</key>
+		<value>""</value>
+		<type>string</type>
+		<hide>
+			#if $dev_addr()
+				none
+			#else
+				part
+			#end if
+		</hide>
+	</param>
+	<param>
+		<name>Device Arguments</name>
+		<key>dev_args</key>
+		<value>""</value>
+		<type>string</type>
+		<hide>
+			#if $dev_args()
+				none
+			#else
+				part
+			#end if
+		</hide>
+	</param>
+	<param>
+		<name>TSB tag name</name>
+		<key>len_tag_name</key>
 		<value></value>
 		<type>string</type>
-  </param>
+		<hide>\#if len(str(\$len_tag_name())) then 'none' else 'part'#</hide>
+	</param>
 
-  <sink>
-    <name>in</name>
-    <type>complex</type>
-  </sink>
+	<param>
+		<name>Ch0: Center Freq (Hz)</name>
+		<key>center_freq0</key>
+		<value>0</value>
+		<type>real</type>
+		<tab>RF Options</tab>
+	</param>
+	<param>
+		<name>Samp Rate (Sps)</name>
+		<key>samp_rate</key>
+		<value>samp_rate</value>
+		<type>real</type>
+	</param>
+
+	<sink>
+		<name>in</name>
+		<type>complex</type>
+	</sink>
 
 </block>

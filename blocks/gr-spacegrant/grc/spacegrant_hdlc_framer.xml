@@ -2,7 +2,7 @@
 <block>
   <name>HDLC Framer</name>
   <key>spacegrant_hdlc_framer</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <make>spacegrant.hdlc_framer($frame_tag_name, $number_of_flags)</make>
   <param>

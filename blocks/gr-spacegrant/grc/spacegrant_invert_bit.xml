@@ -2,7 +2,7 @@
 <block>
   <name>Invert Bit</name>
   <key>spacegrant_invert_bit</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <make>spacegrant.invert_bit()</make>
 

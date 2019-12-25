@@ -2,7 +2,7 @@
 <block>
   <name>NRZI</name>
   <key>spacegrant_NRZI</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <make>spacegrant.NRZI()</make>
 

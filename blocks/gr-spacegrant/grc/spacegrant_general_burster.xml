@@ -2,7 +2,7 @@
 <block>
   <name>General Burster</name>
   <key>spacegrant_general_burster</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <make>spacegrant.general_burster()</make>
 

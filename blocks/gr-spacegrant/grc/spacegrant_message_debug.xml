@@ -2,7 +2,7 @@
 <block>
   <name>Message Debug</name>
   <key>spacegrant_message_debug</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <make>spacegrant.message_debug()</make>
 

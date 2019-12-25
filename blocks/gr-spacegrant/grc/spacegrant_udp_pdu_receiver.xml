@@ -2,7 +2,7 @@
 <block>
   <name>UDP PDU Receiver</name>
   <key>spacegrant_udp_pdu_receiver</key>
-  <category>spacegrant</category>
+  <category>[spacegrant]</category>
   <import>import spacegrant</import>
   <make>spacegrant.udp_pdu_receiver($ipaddr, $port)</make>
 

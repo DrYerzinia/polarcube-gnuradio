@@ -105,6 +105,8 @@ public:
                    const std::string& length_tag_name);
     ~usrp_sink_impl();
 
+    void recv_loop();
+
     ::uhd::dict<std::string, std::string> get_usrp_info(size_t chan);
     double get_samp_rate(void);
     ::uhd::meta_range_t get_samp_rates(void);
@@ -204,6 +206,12 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
 protected:
+
+    gr::thread::thread _amsg_thread;
+    bool _running;
+
+    bool _transmitting;
+
     // USRP_BLOCK /////////////////////////////////////////////////////////////
  
     /**********************************************************************

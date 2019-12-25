@@ -51,6 +51,7 @@ namespace gr {
                        const ::uhd::stream_args_t& stream_args,
                        const std::string& length_tag_name);
 
+      virtual void set_gain(double gain, size_t chan = 0) = 0;
       virtual ::uhd::tune_result_t set_center_freq(const ::uhd::tune_request_t tune_request,
                                                    size_t chan = 0) = 0;
       ::uhd::tune_result_t set_center_freq(double freq, size_t chan = 0)

@@ -20,11 +20,21 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#define BURST_ENABLED
+
 #include <iostream>
 
 #include "gr_uhd_common.h"
 #include "sg_uhd_usrp_sink_impl.h"
 #include <gnuradio/io_signature.h>
+
+#include <stdio.h>
+
+#include <uhd/types/metadata.hpp>
+
+#include <thread>
+#include <chrono>
+
 #include <climits>
 #include <stdexcept>
 
@@ -146,9 +156,19 @@ usrp_sink_impl::usrp_sink_impl(const ::uhd::device_addr_t& device_addr,
 
 {
 
-    std::cerr << "usrp_sink_impl::usrp_sink_impl" << std::endl;
-
     _dev = ::uhd::usrp::multi_usrp::make(device_addr);
+
+    //_async_event_thread = gr::thread::thread([this]() { this->async_event_loop(); });
+
+    #ifdef BURST_ENABLED
+
+        printf("UHD_SINK\n");
+        _transmitting = false;
+
+        _amsg_thread = gr::thread::thread(boost::bind(&usrp_sink_impl::recv_loop, this));
+        _running = true;
+
+    #endif
 
     _check_mboard_sensors_locked();
 
@@ -494,6 +514,40 @@ void usrp_sink_impl::set_stream_args(const ::uhd::stream_args_t& stream_args)
     }
 }
 
+void
+usrp_sink_impl::recv_loop()
+{
+    ::uhd::async_metadata_t md;
+
+    while(_running) {
+
+        while(!_dev->get_device()->recv_async_msg(md, 0.1)) {
+            if(!_running)
+                return;
+        }
+
+        switch(md.event_code){
+            case ::uhd::async_metadata_t::EVENT_CODE_UNDERFLOW:
+                if(_transmitting){
+
+                    // TODO delay then turn off GPIO
+                    _dev->set_gpio_attr("FP0", "OUT", 0x00, 0x01, 0); // TR switch to R
+                    _dev->set_gpio_attr("FP0", "OUT", 0x00, 0x02, 0); // PA Power off
+
+                    printf("UF\n");
+
+                    _transmitting = false;
+
+                }
+                break;
+
+            default:
+                break;
+        }
+
+    }
+}
+
 /***********************************************************************
  * Work
  **********************************************************************/
@@ -509,6 +563,20 @@ int usrp_sink_impl::work(int noutput_items,
     // default to send a mid-burst packet
     _metadata.start_of_burst = false;
     _metadata.end_of_burst = false;
+
+    #ifdef BURST_ENABLED
+
+        printf("WORK\n");
+
+        // TODO if we are not TXing change TR switch and delay 0.25s
+        if(!_transmitting){
+            _dev->set_gpio_attr("FP0", "OUT", 0x01, 0x01, 0); // TR switch to T
+            _dev->set_gpio_attr("FP0", "OUT", 0x02, 0x02, 0); // PA Power on
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            _transmitting = true;
+        }
+
+    #endif
 
     // collect tags in this work()
     const uint64_t samp0_count = nitems_read(0);
@@ -764,6 +832,48 @@ bool usrp_sink_impl::start(void)
 
         _tx_stream->send(gr_vector_const_void_star(_nchan), 0, _metadata, 1.0);
     }
+
+    #ifdef BURST_ENABLED
+
+        printf("start\n");
+
+        /*
+        std::vector<std::string> banks  = _dev->get_gpio_banks(0);
+        for (std::vector<std::string>::iterator it = banks.begin() ; it != banks.end(); ++it)
+        std::cout << ' ' << *it;
+        */
+
+        // Initalize GPIO
+        // GPIO 0 is for TR Switch Control
+        _dev->set_gpio_attr("FP0", "DDR", 0x01, 0x01, 0);  // 1 for output
+        _dev->set_gpio_attr("FP0", "CTRL", 0x00, 0x01, 0); // 0 for GPIO
+        _dev->set_gpio_attr("FP0", "OUT", 0x00, 0x01, 0);  // 0 Low level
+
+        // GPIO 1 is for PA Control
+        _dev->set_gpio_attr("FP0", "DDR", 0x02, 0x02, 0);  // 1 for output
+        _dev->set_gpio_attr("FP0", "CTRL", 0x00, 0x02, 0); // 0 for GPIO
+        _dev->set_gpio_attr("FP0", "OUT", 0x00, 0x02, 0);  // 0 Low level
+
+        // GPIO 2 is TX state
+        _dev->set_gpio_attr("FP0", "DDR", 0x04, 0x04, 0);  // 1 for output
+        _dev->set_gpio_attr("FP0", "CTRL", 0x04, 0x04, 0); // 1 for ATR
+
+        _dev->set_gpio_attr("FP0", "ATR_TX", 0x04, 0x04, 0);
+        _dev->set_gpio_attr("FP0", "ATR_RX", 0x00, 0x04, 0);
+        _dev->set_gpio_attr("FP0", "ATR_XX", 0x04, 0x04, 0);
+        _dev->set_gpio_attr("FP0", "ATR_0X", 0x00, 0x04, 0);
+
+        // GPIO 3 is RX state
+        _dev->set_gpio_attr("FP0", "DDR", 0x08, 0x08, 0);  // 1 for output
+        _dev->set_gpio_attr("FP0", "CTRL", 0x08, 0x08, 0); // 1 for ATR
+
+        _dev->set_gpio_attr("FP0", "ATR_TX", 0x00, 0x08, 0);
+        _dev->set_gpio_attr("FP0", "ATR_RX", 0x08, 0x08, 0);
+        _dev->set_gpio_attr("FP0", "ATR_XX", 0x00, 0x08, 0);
+        _dev->set_gpio_attr("FP0", "ATR_0X", 0x00, 0x08, 0);
+
+    #endif
+
     return true;
 }
 

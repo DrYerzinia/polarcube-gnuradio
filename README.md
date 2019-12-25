@@ -6,8 +6,9 @@ You will need swig and pyephem installed:
 
 
 ```bash
-sudo apt-get install swig gnuradio cmake python-pip
-pip2 install pyephem
+sudo apt-get install gnuradio build-essential cmake git doxygen pkg-config libuhd-dev python-pip swig libyaml-dev
+sudo pip2 install pyephem
+sudo pip2 install prettytable Mako pyaml dateutils --upgrade
 ```
 
 All important blocks needed for flowgraphs are in blocks/gr-spacegrant.

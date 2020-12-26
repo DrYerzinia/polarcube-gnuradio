@@ -75,7 +75,7 @@ namespace gr {
               int l = 7-j;
               uint8_t next_bit = (data[i] >> l) & 1;
 
-              if(i > 3){ // After preamble/sync
+              if(i > 7){ // After preamble/sync
 
                 next_bit ^= (lfsr[0] >> 7);
 
@@ -168,31 +168,42 @@ namespace gr {
         if(!pmt::is_blob(blob))
             throw std::runtime_error("HDLC framer: PMT must be blob");
 
-        std::vector<unsigned char> pkt(pmt::blob_length(blob)+6);
+        uint8_t pre_sync[] = {0x01, 0x02, 0x03, 0x04, 0x88, 0x88, 0x88, 0x88};
+        uint8_t post_sync[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+
+        std::vector<unsigned char> pkt(pmt::blob_length(blob)+1+1+sizeof(pre_sync)+sizeof(post_sync));
+
+        int packet_len = 0;
 
         // Add framing
-        uint8_t pre_sync[] = {0x88, 0x88, 0x88, 0x88};
-        memcpy(&pkt[0], pre_sync, 4);
+        memcpy(&pkt[packet_len], pre_sync, sizeof(pre_sync));
+        packet_len += sizeof(pre_sync);
 
         // Add length
-        pkt[4] = pmt::blob_length(blob);
+        pkt[packet_len] = pmt::blob_length(blob);
+        packet_len += 1;
 
-        memcpy(&pkt[5], (const unsigned char *) pmt::blob_data(blob), pmt::blob_length(blob));
+        memcpy(&pkt[packet_len], (const unsigned char *) pmt::blob_data(blob), pmt::blob_length(blob));
+        packet_len += pmt::blob_length(blob);
 
         //calc CRC
-        uint8_t crc = crc8(crc_table, &pkt[4], pmt::blob_length(blob)+1, 0xFF);
+        uint8_t crc = crc8(crc_table, &pkt[sizeof(pre_sync)], pmt::blob_length(blob)+1, 0xFF);
+        pkt[packet_len] = crc;
+        packet_len += 1;
 
-        //append CRC
-        pkt[5+pmt::blob_length(blob)] = crc;
+        memcpy(&pkt[packet_len], post_sync, sizeof(post_sync));
+        packet_len += sizeof(post_sync);
 
         //unpack to LSb bits
         std::vector<unsigned char> pkt_bits = unpack(pkt);
 
+        /*
         uint16_t k;
-        /*for(k = 0; k < pkt_bits.size(); k++){
+        for(k = 0; k < pkt_bits.size(); k++){
           if(pkt_bits[k] == 0) printf("0");
           else printf("1");
-        }*/
+        }
+        printf("\n");*/
 
         if((size_t)noutput_items < (oidx+pkt_bits.size())) {
             d_leftovers.insert(d_leftovers.end(), pkt_bits);

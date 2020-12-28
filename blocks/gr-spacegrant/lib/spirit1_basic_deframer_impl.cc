@@ -269,34 +269,7 @@ namespace gr {
 
 						      uint8_t packet[300];
 
-						      // Recreate IP header if was stripped
-						      if(packet_data_buffer[0] < 6){
-						        uint8_t header[] = {0x45, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00,
-						                            0x40, 0x11, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01,
-						                            0x01, 0x01, 0x01, 0x02, 0x8b, 0xc1, 0x8b, 0xc1,
-						                            0x00, 0x00, 0x00, 0x00};
-
-						        memcpy(packet+28, packet_data_buffer, packet_length);
-						        memcpy(packet, &header, 28);
-
-						        packet[2] = ((packet_length+28) & 0xff00)>>8;
-						        packet[3] = (packet_length+28) & 0xff;
-
-						        uint16_t ics = checksum(packet, 20);
-						        packet[11] = (ics & 0xff00)>>8;
-						        packet[10] = ics & 0xff;
-
-						        packet[24] = ((packet_length+8) & 0xff00)>>8;
-						        packet[25] = (packet_length+8) & 0xff;
-						        //uint16_t cs = udp_checksum((uint16_t*)packet+20, len-9, (uint16_t*)inet_addr("1.1.1.1"), (uint16_t*)inet_addr("1.1.1.2"));
-						        //packet[27] = (cs & 0xff00)>>8;
-						        //packet[26] = cs & 0xff;
-
-										packet_length += 28;
-
-						      } else {
-						        memcpy(packet, packet_data_buffer, packet_length);
-						      }
+					        memcpy(packet, packet_data_buffer, packet_length);
 
 		              pmt::pmt_t pdu(pmt::cons(pmt::PMT_NIL, pmt::make_blob(packet, packet_length)));
 		              message_port_pub(pmt::mp("out"), pdu);

@@ -75,7 +75,7 @@ namespace gr {
               int l = 7-j;
               uint8_t next_bit = (data[i] >> l) & 1;
 
-              if(i > 7){ // After preamble/sync
+              if(i > 8 && i < data.size() - 1){ // After preamble/sync before postamble
 
                 next_bit ^= (lfsr[0] >> 7);
 
@@ -168,8 +168,8 @@ namespace gr {
         if(!pmt::is_blob(blob))
             throw std::runtime_error("HDLC framer: PMT must be blob");
 
-        uint8_t pre_sync[] = {0x01, 0x02, 0x03, 0x04, 0x88, 0x88, 0x88, 0x88};
-        uint8_t post_sync[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+        uint8_t pre_sync[] = {0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0x88, 0x88, 0x88, 0x88};
+        uint8_t post_sync[] = {0xFF};
 
         std::vector<unsigned char> pkt(pmt::blob_length(blob)+1+1+sizeof(pre_sync)+sizeof(post_sync));
 
